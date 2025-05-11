@@ -41,13 +41,18 @@ func parsePackage(data string) (int, time.Duration, error) {
 
 	// Преобразуем количество шагов в число
 	step, err := strconv.Atoi(stepStr)
-	if err != nil || step <= 0 {
+	if err != nil {
+		return 0, 0, errors.New("invalid data format")
+	}
+	if step <= 0 {
 		return 0, 0, errors.New("invalid step value")
 	}
-
 	// Преобразуем продолжительность в тип time.Duration
 	duration, err := time.ParseDuration(durationStr)
-	if err != nil || duration <= 0 {
+	if err != nil {
+		return 0, 0, errors.New("invalid data format")
+	}
+	if duration <= 0 {
 		return 0, 0, errors.New("invalid activity duration")
 	}
 

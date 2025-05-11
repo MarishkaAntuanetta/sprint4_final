@@ -75,11 +75,11 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	case "ходьба":
 		calories, err = WalkingSpentCalories(step, weight, height, duration)
 	default:
-		return "", errors.New("неизвестный тип тренировки")
+		return "", errors.New("unknown workout type")
 	}
 
 	if err != nil {
-		return "", errors.New("невозможно произвести подсчет калорий")
+		return "", errors.New("unable to calculate calories burned")
 	}
 
 	distance := distance(step, height)
@@ -100,7 +100,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 // RunningSpentCalories вычисляет количество сожженных калорий во время бега.
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("неверные данные")
+		return 0, errors.New("invalid data")
 	}
 	averageSpeed := meanSpeed(steps, height, duration)
 	minutes := duration.Minutes()
@@ -111,7 +111,7 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 // WalkingSpentCalories вычисляет количество сожженных калорий во время ходьбы.
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("неверные данные")
+		return 0, errors.New("invalid data")
 	}
 
 	minutes := duration.Minutes()

@@ -75,7 +75,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	case "ходьба":
 		calories, err = WalkingSpentCalories(step, weight, height, duration)
 	default:
-		return "", errors.New("unknown workout type")
+		return "", fmt.Errorf("неизвестный тип тренировки")
 	}
 
 	if err != nil {

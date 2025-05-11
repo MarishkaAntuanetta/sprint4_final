@@ -20,25 +20,29 @@ const (
 func parseTraining(data string) (int, string, time.Duration, error) {
 	strData := strings.Split(data, ",")
 	if len(strData) != 3 {
-		return 0, "", 0, errors.New("неверный формат данных")
+		return 0, "", 0, errors.New("invalid data format")
 	}
 
-	step, err1 := strconv.Atoi(strData[0])
-	if err1 != nil || step <= 0 {
-		return 0, "", 0, errors.New("неверное значение шага")
+	step, err := strconv.Atoi(strData[0])
+	if err != nil {
+		return 0, "", 0, errors.New("invalid data format")
 	}
-
-	duration, err2 := time.ParseDuration(strData[2])
-	if err2 != nil || duration <= 0 {
-		return 0, "", 0, errors.New("неверное значение продолжительности")
+	if step <= 0 {
+		return 0, "", 0, errors.New("invalid step value")
 	}
-
+	duration, err := time.ParseDuration(strData[2])
+	if err != nil {
+		return 0, "", 0, errors.New("invalid data format")
+	}
+	if duration <= 0 {
+		return 0, "", 0, errors.New("invalid activity duration")
+	}
 	return step, strData[1], duration, nil
 }
 
 // distance вычисляет дистанцию, пройденную пользователем на основе количества шагов и роста.
 func distance(steps int, height float64) float64 {
-	distanceKm := ((stepLengthCoefficient * height) * float64(steps)) / float64(mInKm)
+	distanceKm := ((stepLengthCoefficient * height) * float64(steps)) / mInKm
 	return distanceKm
 }
 
@@ -63,46 +67,34 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		return "", err
 	}
 
+	var calories float64
+
 	switch strings.ToLower(training) {
 	case "бег":
-		distance := distance(step, height)
-		averageSpeed := meanSpeed(step, height, duration)
-		calories, err := RunningSpentCalories(step, weight, height, duration)
-		if err != nil {
-			return "", errors.New("невозможно произвести подсчет калорий")
-		}
-		return fmt.Sprintf("Тип тренировки: %s\n"+
-			"Длительность: %.2f ч.\n"+
-			"Дистанция: %.2f км.\n"+
-			"Скорость: %.2f км/ч\n"+
-			"Сожгли калорий: %.2f\n",
-			training,
-			duration.Hours(),
-			distance,
-			averageSpeed,
-			calories), nil
-
+		calories, err = RunningSpentCalories(step, weight, height, duration)
 	case "ходьба":
-		distance := distance(step, height)
-		averageSpeed := meanSpeed(step, height, duration)
-		calories, err := WalkingSpentCalories(step, weight, height, duration)
-		if err != nil {
-			return "", errors.New("невозможно произвести подсчет калорий")
-		}
-		return fmt.Sprintf("Тип тренировки: %s\n"+
-			"Длительность: %.2f ч.\n"+
-			"Дистанция: %.2f км.\n"+
-			"Скорость: %.2f км/ч\n"+
-			"Сожгли калорий: %.2f\n",
-			training,
-			duration.Hours(),
-			distance,
-			averageSpeed,
-			calories), nil
-
+		calories, err = WalkingSpentCalories(step, weight, height, duration)
 	default:
 		return "", errors.New("неизвестный тип тренировки")
 	}
+
+	if err != nil {
+		return "", errors.New("невозможно произвести подсчет калорий")
+	}
+
+	distance := distance(step, height)
+	averageSpeed := meanSpeed(step, height, duration)
+
+	return fmt.Sprintf("Тип тренировки: %s\n"+
+		"Длительность: %.2f ч.\n"+
+		"Дистанция: %.2f км.\n"+
+		"Скорость: %.2f км/ч\n"+
+		"Сожгли калорий: %.2f\n",
+		training,
+		duration.Hours(),
+		distance,
+		averageSpeed,
+		calories), nil
 }
 
 // RunningSpentCalories вычисляет количество сожженных калорий во время бега.

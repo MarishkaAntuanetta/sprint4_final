@@ -25,14 +25,14 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 
 	step, err := strconv.Atoi(strData[0])
 	if err != nil {
-		return 0, "", 0, errors.New("invalid data format")
+		return 0, "", 0, err
 	}
 	if step <= 0 {
 		return 0, "", 0, errors.New("invalid step value")
 	}
 	duration, err := time.ParseDuration(strData[2])
 	if err != nil {
-		return 0, "", 0, errors.New("invalid data format")
+		return 0, "", 0, err
 	}
 	if duration <= 0 {
 		return 0, "", 0, errors.New("invalid activity duration")
@@ -99,8 +99,17 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 
 // RunningSpentCalories вычисляет количество сожженных калорий во время бега.
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("invalid data")
+	if steps <= 0 {
+		return 0, errors.New("неверное количество шагов")
+	}
+	if weight <= 0 {
+		return 0, errors.New("некорректный вес")
+	}
+	if height <= 0 {
+		return 0, errors.New("некорректный рост")
+	}
+	if duration <= 0 {
+		return 0, errors.New("некорректное время тренировки")
 	}
 	averageSpeed := meanSpeed(steps, height, duration)
 	minutes := duration.Minutes()
@@ -110,10 +119,18 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 
 // WalkingSpentCalories вычисляет количество сожженных калорий во время ходьбы.
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("invalid data")
+	if steps <= 0 {
+		return 0, errors.New("неверное количество шагов")
 	}
-
+	if weight <= 0 {
+		return 0, errors.New("некорректный вес")
+	}
+	if height <= 0 {
+		return 0, errors.New("некорректный рост")
+	}
+	if duration <= 0 {
+		return 0, errors.New("некорректное время тренировки")
+	}
 	minutes := duration.Minutes()
 	speed := meanSpeed(steps, height, duration)
 	calories := ((weight * speed * minutes) / minInH) * walkingCaloriesCoefficient
